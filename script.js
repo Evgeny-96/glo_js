@@ -3,41 +3,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
    const arrData = {
       title: '',
-      screens: '',
-      screenPrice: '',
+      screens: [],
+      screenPrice: 0,
       adaptive: '',
       rollback: 10,
       allServicePrices: 0,
       fullPrice: 0,
       servicePercentPrice: 0,
+      services: {},
       i: 0,
       isNumber: function (num) {
-         return !isNaN(parseFloat(num)) && isFinite(num);
+         return num !== null && num.trim() !== '' && !isNaN(num) && isFinite(num);
       },
-      getAllServicePrices: function() {
-         let sum = 0;
-
-         for (let i = 0; i < 2; i++) {
-            let price;
-            do {
-                  price = prompt("Сколько это будет стоить?");
-            } while (!this.isNumber(price));
-            sum += +price;
-         }
-         
-         return sum;
+      isString: function (str) {
+         return str !== null && str.trim() !== '' && !this.isNumber(str);
       },
       showTypeOf: function (variable) {
          console.log(variable, typeof variable);
       },
       getFullPrice: function () {
-         return this.screenPrice + this.allServicePrices;
+         this.fullPrice = this.screenPrice + this.allServicePrices;
       },
       getServicePercentPrices: function () {
-         return this.fullPrice - (this.fullPrice * (this.rollback / 100));
+         this.servicePercentPrice = this.fullPrice - (this.fullPrice * (this.rollback / 100));
       },
       getTitle: function () {
-         return this.title.trim()[0].toUpperCase() + this.title.trim().slice(1).toLowerCase();
+         this.title = this.title.trim()[0].toUpperCase() + this.title.trim().slice(1).toLowerCase();
       },
       getRollbackMessage: function (price) {
          if (price >= 30000) return "Даем скидку в 10%";
@@ -46,24 +37,64 @@ document.addEventListener("DOMContentLoaded", () => {
          else return "Что то пошло не так";
       },
       asking: function () {
-         this.title = prompt("Как называется ваш проект?", "Калькулятор верстки");
-         this.screens = prompt("Какие типы экранов нужно разработать?", "Простые, сложные");
-         
-         do {
-            this.screenPrice = prompt("Сколько будет стоить данная работа?");
-         }
-         while (!this.isNumber(this.screenPrice))
 
-         this.screenPrice = +this.screenPrice;
+         do {
+            this.title = prompt("Как называется ваш проект?", "Калькулятор верстки");
+         }
+         while (!this.isString(this.title));
+         
+
+         for (let i = 0; i < 2; i++) {
+            
+            let name = '';
+            do {
+               name = prompt("Какие типы экранов нужно разработать?");
+            }
+            while (!this.isString(name));
+
+            let price = 0;
+
+            do {
+               price = prompt("Сколько будет стоить данная работа?");
+            }
+            while (!this.isNumber(price))
+
+            this.screens.push({ id: i, name: name, price: +price});
+         }
+
+         for (let i = 0; i < 2; i++) {
+            let name = '';
+
+            do {
+               name = prompt("Какой дополнительный тип услуги нужен?");
+            }
+            while (!this.isString(name));
+
+            let price;
+            do {
+               price = prompt("Сколько это будет стоить?");
+            } while (!this.isNumber(price));
+
+            this.services[name] = +price;
+         }
          
          this.adaptive = confirm("Нужен ли адаптив на сайте?");
       },
+      addPrices: function() {
+         for (let screen of this.screens) {
+            this.screenPrice += +screen.price;
+         }
+
+         for (let key in this.services) {
+            this.allServicePrices += this.services[key];
+         }
+      },
       start: function () {
-         this.asking()
-         this.allServicePrices = this.getAllServicePrices();
-         this.fullPrice = this.getFullPrice();
-         this.servicePercentPrice = this.getServicePercentPrices();
-         this.title = this.getTitle();
+         this.asking();
+         this.addPrices();
+         this.getFullPrice();
+         this.getServicePercentPrices();
+         this.getTitle();
          this.logger();
       },
       logger: function () {
@@ -74,6 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
          console.log(this.getRollbackMessage(this.fullPrice))
          console.log(this.screens.length)
          console.log(this.servicePercentPrice)
+         console.log(this.screens);
 
          console.log("Стоимость верстки экранов " + this.screenPrice + " рублей и Стоимость разработки сайта " + this.servicePercentPrice + " рублей")
          
@@ -81,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (typeof this[key] !== 'function') {
                console.log(this[key]);
             }
-         }         
+         }
       }
    }
 
