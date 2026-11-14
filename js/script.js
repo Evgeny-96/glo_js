@@ -60,6 +60,10 @@ document.addEventListener("DOMContentLoaded", () => {
       changeRange: function () {
          inputRangeValue.textContent = +inputRange.value + '%';
          appData.rollback = +inputRange.value;
+         if (appData.fullPrice > 0) {
+            appData.servicePercentPrice = appData.fullPrice - (appData.fullPrice * (appData.rollback / 100));
+            totalCountRollback.value = appData.servicePercentPrice;
+         }
       },
       showResult: function () {
          total.value = appData.screenPrice;
